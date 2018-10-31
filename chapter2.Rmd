@@ -1,7 +1,5 @@
-# Insert chapter 2 title here
+# First week of IODs
 
-*Describe the work you have done this week and summarize your learning.*
+In this first I learned how to use R and RStudio as well as Git. These are all very useful tools for working with open data and analysis of it. In R we used some of the very basic commands availaible and learned about variable types and functions and how they are operated in R. This weak we learned how to compute means and calculate with R. This weeks sets the stage for future tasks in R involving statistics. 
 
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using  
+I am familiar with RStudio and Rmarkdown, so I din't learn too many new things. The {r child = "chapter1.Rmd"} -notation was something that I hadn't what would be useful in the future.
