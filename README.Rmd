@@ -1,2 +1,3 @@
 Open data course uding Git and R.
+Course diary is at:
 https://katariinaparnanen.github.io/IODS-project/
