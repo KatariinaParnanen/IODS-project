@@ -1,3 +1,7 @@
+---
+output:
+  github_document: default
+---
+
 Open data course using Git and R.
-Course diary is at:
-https://katariinaparnanen.github.io/IODS-project/
+Course diary is [here.](https://katariinaparnanen.github.io/IODS-project/)
