@@ -1,5 +1,0 @@
-# First week of IODs
-
-In this first I learned how to use R and RStudio as well as Git. These are all very useful tools for working with open data and analysis of it. In R we used some of the very basic commands availaible and learned about variable types and functions and how they are operated in R. This weak we learned how to compute means and calculate with R. This weeks sets the stage for future tasks in R involving statistics. 
-
-I am familiar with RStudio and Rmarkdown, so I din't learn too many new things. The {r child = "chapter1.Rmd"} -notation was something that I hadn't what would be useful in the future.
