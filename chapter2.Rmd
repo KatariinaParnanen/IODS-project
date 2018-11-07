@@ -6,44 +6,39 @@ output:
   html_document: default
   github_document: default
 ---
+#Week 2: Data wrangling, regression analysis and model validation
+This week we have learned about data wrangling using R and dplyr package. We also are introduced to basic regression analysis and model validation using diagnostic plots.
 
-##Data wrangling
+##Reading in data
 
-###Read in data from local directory
+We will first read in data from local directory. The data is based on a questionaire done on students of a course and their exam points.
 ```{r}
 #Read in table
 lrn2014<-read.table("/Users/kparnane/Documents/IODS_course/IODS-project/data/learning2014.txt", header=TRUE, sep="\t")
-
 ```
-###Explore the dataset's dimension and structure
-```{r}
+We will explore the dataset's dimension and structure.
+```{r, message=FALSE}
 #Explore the dimensions
 dim(lrn2014)
-
-
-
 #Explore the structure of the file
 str(lrn2014)
-
-
 ```
 The data has 166 observations and 7 variable columns.
 
-The dataset has a response variable "points"" and explanatory variables "age", "attitude",  "deep", "surf" and "stra". "deep" means points for deep learning questions, "surf" points for surface learning questions, "stra" means strategic learning techniques. "points" means exam score. More info can be found [here](http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-meta.txt).
+The dataset has a response variable "points"" and explanatory variables "age", "attitude",  "deep", "surf" and "stra". "deep" means points for deep learning questions, "surf" points for surface learning questions, "stra" means strategic learning techniques. "points" means exam score. More info on the dataset can be found [here](http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-meta.txt).
 
-##Analysis
+##Data exploration
 
-###Explore correlations and distributions of factors using "ggpairs"
-```{r} 
+We will explore correlations and distributions of explanatory and response factors using "ggpairs" which plots pairwise correlations and variable disturbutions. 
+```{r, message=FALSE, fig.cap="__Pairwise correlation plot__: Exploration of variables and correlations"} 
+#Load required packages
 library(GGally)
 library(ggplot2)
 
 #Draw plot
-p <- ggpairs(lrn2014, mapping = aes(col = gender, alpha=0.3), lower = list(combo = wrap("facethist", bins = 20)))
+ggpairs(lrn2014, mapping = aes(col = gender, alpha=0.3), lower = list(combo = wrap("facethist", bins = 20)))
 
-p
-
-#get summaries
+#Get summaries of variables
 summary(lrn2014$gender)
 summary(lrn2014$age)
 summary(lrn2014$attitude)
@@ -53,8 +48,9 @@ summary(lrn2014$surf)
 ```
 There are more females than males. Other factors besides age seem to roughly follow a normal distribution. Mean age is 25. We are interested in the response variable points and how the explanatory variables corrrelate with it. The highest correlations are with "attitude", "stra" and there is a negative correlation with "surf".
 
-###Linear models
-Now we use the three variables with possible correlations with exam points identified in the data exploration.
+##Linear models
+
+Now we use the three variables with possible correlations with exam points identified in the data exploration in linear models.
 ```{r}
 # fit a linear model
 my_model <- lm(points ~ attitude+stra+surf, data = lrn2014)
@@ -63,10 +59,11 @@ my_model <- lm(points ~ attitude+stra+surf, data = lrn2014)
 summary(my_model)
 
 ```
-Variable attitude is positively correlated with points with a p-value of 1.93e-08 and estimate 0.33952. The other variables are not significantly correlated with exam points so they can be excluded from the model.
+Variable "attitude" is positively correlated with points with a p-value of 1.93e-08 and estimate 0.33952. The other variables are not significantly correlated with exam points so they can be excluded from the model.
 
-###Drop the other variables and fit the model again
-```{r}
+Drop the not significant variables and fit the model again.
+
+```{r, fig.cap="__Scatter plot with regression line__: Relationship of points and attitude"}
 # fit a linear model
 my_model2 <- lm(points ~ attitude, data = lrn2014)
 
@@ -74,18 +71,21 @@ my_model2 <- lm(points ~ attitude, data = lrn2014)
 qplot(attitude, points, data = lrn2014) + geom_smooth(method = "lm")
 ```
 
-###Summary of the model
+Print summary of the model.
 
 ```{r}
 # print out a summary of the model
 summary(my_model2)
 ```
+
 There is a significant relationship with the variable attitude exam points. The attitude variable has a p-value of 1.95e-09, estimate of 0.35255 and standard error of  0.05674. The R-squared value is 0.1856 meaning that attitude variable explains roughly 19% of the variation in the model.
 
-###Diagnostic plots
+##Diagnostic plots
+
 We will produce diagnostic plots to see if the model fits the assumptions of linear models.
 The assumptions are that the size of the error is not dependent on the variable value and the errors are normally distributed and that the explanatory variables are not correlated with each other. The dependent variables should also be independent from each other.
-```{r}
+
+```{r, fig.cap = "__Diagnostic plots__: Plots for exploring model errors" }
 # Draw diagnostic plots using the plot() function. Choose the plots 1, 2 and 5
 par(mfrow = c(2,2))
 plot(my_model2, which=c(1, 2, 5))
@@ -93,18 +93,4 @@ plot(my_model2, which=c(1, 2, 5))
 ```
 
 
-There doesn't seem to be any patterns in the residuals vs fitted values plot so the size of the residuals are not dependent on the fitted values.
-
-The residuals in the Q-Q plot follow the assumed regression line quite well so the assumption of normal distribution of errors is filled.
-
-The residuals vs leverage plot doesn't reveal that there are any observations which have a unusually high effect on the model.
-
-The model also has only one explanatory variable so explanatory variable autocorrelation is not a problem. The observations are also independent from each other.
-
-Thus, we can conclude that the model fits the assumptions.
-
-```{r}
-
-```
-
-
+There doesn't seem to be any patterns in the residuals vs fitted values plot so the size of the residuals are not dependent on the fitted values. The residuals in the Q-Q plot follow the assumed regression line quite well so the assumption of normal distribution of errors is filled. The residuals vs leverage plot doesn't reveal that there are any observations which have a unusually high effect on the model. The model also has only one explanatory variable so explanatory variable autocorrelation is not a problem. The observations are also independent from each other.Thus, we can conclude that the model fits the assumptions.
