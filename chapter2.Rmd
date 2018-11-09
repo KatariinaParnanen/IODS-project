@@ -39,12 +39,7 @@ library(ggplot2)
 ggpairs(lrn2014, mapping = aes(col = gender, alpha=0.3), lower = list(combo = wrap("facethist", bins = 20)))
 
 #Get summaries of variables
-summary(lrn2014$gender)
-summary(lrn2014$age)
-summary(lrn2014$attitude)
-summary(lrn2014$deep)
-summary(lrn2014$stra)
-summary(lrn2014$surf)
+summary(lrn2014)
 ```
 There are more females than males. Other factors besides age seem to roughly follow a normal distribution. Mean age is 25. We are interested in the response variable points and how the explanatory variables corrrelate with it. The highest correlations are with "attitude", "stra" and there is a negative correlation with "surf".
 
