@@ -1,0 +1,134 @@
+---
+title: "Logistic regression"
+author: "Katariina Parnanen"
+date: "November 14, 2018"
+output:
+  html_document: default
+  github_document: default
+---
+#Week 3: Logistic regression
+This week we have learned about logistic regression, piping and model validation. 
+
+##Reading in data
+
+#Read in data and explore
+```{r}
+# Get access to useful libraries
+library(dplyr);library(ggplot2);library(tidyr)
+
+#Read in table from local folder
+alc<-read.table(file = "data/alc.txt", sep="\t", header=TRUE)
+
+#Explore the data using glimpse
+
+glimpse(alc)
+
+
+# Draw a bar plot of each variable
+gather(alc) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar()
+
+```
+
+The data has 382 observations and 35 variables from students whose alcohol consumption has been studied. The variables are either integers, numeric, factors or logicals. More information about the data can be found [here]https://archive.ics.uci.edu/ml/datasets/Student+Performance.
+
+The data includes variables for sex, Medu - mother's education and age, Pstatus - parent's cohabitation status. Usually there are differences between how much boys and girls drink due to social norms, absences from school also probably correlate with high use of alcohol, going out a lot also usually means higher alcohol consumption and age might have an effect due to easy acccess to alcohol for older kids.
+
+##Logistic regression
+
+###Explore the relationship with high alcohol use and the chosen variables and the distribution of the variables
+
+Explore how sex is related to high alcohol use.
+```{r}
+#Explore the distributions of females and males in the data
+g0<-ggplot(data = alc, aes(x=sex))
+
+g0 + geom_bar()
+
+#Explore how high use is dependent on sex using barplots
+g1<-ggplot(data = alc, aes(x = high_use, fill = sex))
+
+g1 + geom_bar()+facet_wrap("sex")
+```
+There are about equal numbers of males and females. There seems to be more males who have high use compared to females, which makes sense if you think about the social norms hypothesis
+
+Explore how absences are related to alcohol use using boxplots.
+
+```{r}
+#Draw boxplots with high and low alcohol uses relation with absences
+g3 <- ggplot(alc, aes(x=high_use, y=absences, col = sex))
+g3 + geom_boxplot() +  ylab("absences") + ggtitle("Student absences by alcohol consumption and sex")
+
+```
+
+It seems that there are more absences in the kids with high alcohol use. This makes sense if you think that kids who drink more are also skipping more school. The patterns seem similar between females and males.
+
+Explore how going out is related to alcohol use.
+
+```{r}
+#Explore the distibution of kids going out
+g4 <- ggplot(alc, aes(x=goout, fill=sex))
+g4 + geom_bar()
+
+#Explore the relationship with high alcohol use
+g5 <- ggplot(alc, aes(x=high_use, y=goout, col = sex))
+g5 + geom_boxplot()  + ggtitle("Going out by alcohol consumption and sex")
+```
+Going out seems to be quite normally distributed between the values 1 and 5. However, there aren't very many kids who don't go out almost at all compared to the ones who go out very often. There is approximately equal numbers of both sexes in each going out class.
+
+There definitely seems to be a relationship between going out and alcohol use. However, there might be some differences between going out often beign correlated with drinking more since in females there is overlap between the ones who go out often but don't have high alcohol use with those who go out often and have high alcohol use.
+
+Explore the relationship with age and alcohol use.
+
+```{r}
+
+# Explore the distribution of age
+g6<-ggplot(alc, aes(x=age, fill =sex))
+g6+geom_bar()
+
+# Explore the relationship of age  with alcohol use
+
+g7 <- ggplot(alc, aes(y=age, x=high_use, col = sex))
+g7 + geom_boxplot() + ylab("age") + ggtitle("Student age by alcohol consumption and sex")
+```
+Age is not normally distributed and there is quite a long tail for higher numbers after 19. Ages range from 15 to 22 with 16 being the median. For the values 18 and up, there is an approximately equal amount of females and males for each age.
+
+There doesn't seem to be a very obvious link between alcohol use and age that could be seen from the boxplots since the high use boxplots overlap with the low use bowplots. It might be that it is not very difficult to get alchol in the country of the kids even when you are younger than 18.
+
+
+###Build model with the variables that seemed interesting
+```{r}
+# Use generalized linear models to predict high use based on selected variables
+
+m<-glm(high_use~age+sex+absences+goout, data=alc, family = "binomial")
+
+#Print out summary and coefficients
+summary(m)
+
+#From the summary we can see that sex, absences and going out are significantly correlated with high alcohol use
+
+coef(m)
+
+#From the coefficients we can calculate the odds ratio by taking the exponent function of the estimate
+
+
+# compute odds ratios (OR)
+OR <- coef(m) %>% exp
+
+# compute confidence intervals (CI)
+CI<- confint(m) %>% exp
+
+# Join the two together
+
+cbind(OR, CI)
+
+
+```
+* From the odds ratio we can see that for every year the is approximately 9% increase in the chances of having high alcohol use, but the confidence interval includes one, which means that age is not significant.
+
+* We can also see that sex male means a 2.6 times more likely chance of having high alcohol use. The CI does not include 1 so this going out is also significant.
+
+* One more absence from school causes an approximately 9% bigger chance of having high use and this is significant also the CI doesn't include 1.
+
+* Going out from a scale to 1 to 5 is significantly correlated with high alcohol use as the CI doesn't include 1. An increasement of 1 causes an approximately 2.6 more likely chance of having high use.
+
+
