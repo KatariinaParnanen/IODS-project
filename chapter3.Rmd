@@ -11,7 +11,7 @@ This week we have learned about logistic regression, piping and model validation
 
 ##Reading in data
 
-#Read in data and explore
+Read in data and explore.
 ```{r}
 # Get access to useful libraries
 library(dplyr);library(ggplot2);library(tidyr)
@@ -31,13 +31,15 @@ gather(alc) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_b
 
 The data has 382 observations and 35 variables from students whose alcohol consumption has been studied. The variables are either integers, numeric, factors or logicals. More information about the data can be found [here]https://archive.ics.uci.edu/ml/datasets/Student+Performance.
 
-The data includes variables for sex, Medu - mother's education and age, Pstatus - parent's cohabitation status. Usually there are differences between how much boys and girls drink due to social norms, absences from school also probably correlate with high use of alcohol, going out a lot also usually means higher alcohol consumption and age might have an effect due to easy acccess to alcohol for older kids.
+The data includes variables for sex, absences - absences from school, goout - going out and age. Usually there are differences between how much boys and girls drink due to social norms, absences from school also probably correlate with high use of alcohol, going out a lot also usually means higher alcohol consumption due to having more exposure to situations with alcohol and age might have an effect due to easier acccess to alcohol for older kids.
 
 ##Logistic regression
 
+Logistic regression is one type of generalized linear models where the response variable can only have two values for example true or false. In this data set the response variable we are interested is high alochol use, which can have true or false values.
+
 ###Explore the relationship with high alcohol use and the chosen variables and the distribution of the variables
 
-Explore how sex is related to high alcohol use.
+Explore how sex is related to high alcohol use. Our hypothesis is that males drink more than females.
 ```{r}
 #Explore the distributions of females and males in the data
 g0<-ggplot(data = alc, aes(x=sex))
@@ -49,9 +51,9 @@ g1<-ggplot(data = alc, aes(x = high_use, fill = sex))
 
 g1 + geom_bar()+facet_wrap("sex")
 ```
-There are about equal numbers of males and females. There seems to be more males who have high use compared to females, which makes sense if you think about the social norms hypothesis
+There are about equal numbers of males and females in the data. There seems to be more males who have high use compared to females, which makes sense if you think about the social norms hypothesis
 
-Explore how absences are related to alcohol use using boxplots.
+Explore how absences are related to alcohol use using boxplots. Our hypothesis is that kids who are absent more are more likely to also drink more.
 
 ```{r}
 #Draw boxplots with high and low alcohol uses relation with absences
@@ -62,7 +64,7 @@ g3 + geom_boxplot() +  ylab("absences") + ggtitle("Student absences by alcohol c
 
 It seems that there are more absences in the kids with high alcohol use. This makes sense if you think that kids who drink more are also skipping more school. The patterns seem similar between females and males.
 
-Explore how going out is related to alcohol use.
+Explore how going out is related to alcohol use. Our hypothesis is that kids who are going out more are exposed to alcohol more and thus will also drink more.
 
 ```{r}
 #Explore the distibution of kids going out
@@ -77,7 +79,7 @@ Going out seems to be quite normally distributed between the values 1 and 5. How
 
 There definitely seems to be a relationship between going out and alcohol use. However, there might be some differences between going out often beign correlated with drinking more since in females there is overlap between the ones who go out often but don't have high alcohol use with those who go out often and have high alcohol use.
 
-Explore the relationship with age and alcohol use.
+Explore the relationship with age and alcohol use. Our hypothesis is that it is easier for older kids to get alcohol than for younger kids.
 
 ```{r}
 
@@ -96,6 +98,8 @@ There doesn't seem to be a very obvious link between alcohol use and age that co
 
 
 ###Build model with the variables that seemed interesting
+
+Next we will build a GLM using binomial family with the interesting explanatory variables.
 ```{r}
 # Use generalized linear models to predict high use based on selected variables
 
@@ -125,10 +129,60 @@ cbind(OR, CI)
 ```
 * From the odds ratio we can see that for every year the is approximately 9% increase in the chances of having high alcohol use, but the confidence interval includes one, which means that age is not significant.
 
-* We can also see that sex male means a 2.6 times more likely chance of having high alcohol use. The CI does not include 1 so this going out is also significant.
+* We can also see that sex male means a 2.6 times more likely chance of having high alcohol use. Female is the intercept factor. The CI does not include 1 so this going out is also significant.
 
 * One more absence from school causes an approximately 9% bigger chance of having high use and this is significant also the CI doesn't include 1.
 
 * Going out from a scale to 1 to 5 is significantly correlated with high alcohol use as the CI doesn't include 1. An increasement of 1 causes an approximately 2.6 more likely chance of having high use.
+
+##Cross validation
+
+After obtaining the model, we will use cross validation with a training set to estimate the error rate of the model.
+
+```{r}
+
+# Fit the model without age
+m<-glm(high_use~sex+absences+goout, data=alc, family = "binomial")
+
+
+# Predict the probability of high alcohol use
+probabilities <- predict(m, type = "response")
+
+# Add the predicted probabilities to the alc table
+alc <- mutate(alc, probability = probabilities)
+
+# Use the probabilities to make a prediction of high alcohol use as probabilitites instead of odds
+alc <- mutate(alc, prediction = probabilities>0.5)
+
+# See the last ten original classes, predicted probabilities, and class predictions
+select(alc, failures, absences, sex, high_use, probability, prediction) %>% tail(10)
+
+# From here you can see than when prob is >0.5 the prediction is "TRUE"
+
+# Cross tabulate the target variable versus the predictions
+table(high_use = alc$high_use, prediction = alc$prediction)
+
+# From here we can see that out of 65/318 predictions are wrong for predicted low alcohol use and 15/64 are wrong for the prediction of high alcohol use.
+
+# Define a loss function to get the mean prediction error
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  mean(n_wrong)
+}
+
+# Call loss_func to compute the average number of wrong predictions in the (training) data
+loss_func(class = alc$high_use, prob = alc$probability)
+
+
+# Do K-fold cross-validation using the loss_func defined previously
+library(boot)
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = 10)
+
+# Average number of wrong predictions in the cross validation
+cv$delta[1]
+
+```
+
+There is approximately 22 % error in the prediction of high alcohol use using this model.
 
 
