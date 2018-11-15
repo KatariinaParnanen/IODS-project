@@ -75,6 +75,7 @@ g4 + geom_bar()
 g5 <- ggplot(alc, aes(x=high_use, y=goout, col = sex))
 g5 + geom_boxplot()  + ggtitle("Going out by alcohol consumption and sex")
 ```
+
 Going out seems to be quite normally distributed between the values 1 and 5. However, there aren't very many kids who don't go out almost at all compared to the ones who go out very often. There is approximately equal numbers of both sexes in each going out class.
 
 There definitely seems to be a relationship between going out and alcohol use. However, there might be some differences between going out often beign correlated with drinking more since in females there is overlap between the ones who go out often but don't have high alcohol use with those who go out often and have high alcohol use.
