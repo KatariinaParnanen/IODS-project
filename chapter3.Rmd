@@ -56,13 +56,19 @@ There are about equal numbers of males and females in the data. There seems to b
 Explore how absences are related to alcohol use using boxplots. Our hypothesis is that kids who are absent more are more likely to also drink more.
 
 ```{r}
+
+# Explore the distribution of absences
+g6<-ggplot(alc, aes(x=absences, fill =sex))
+g6+geom_bar() + ylab("absences") + ggtitle("Student absences by sex")
+
+
 #Draw boxplots with high and low alcohol uses relation with absences
 g3 <- ggplot(alc, aes(x=high_use, y=absences, col = sex))
 g3 + geom_boxplot() +  ylab("absences") + ggtitle("Student absences by alcohol consumption and sex")
 
 ```
 
-It seems that there are more absences in the kids with high alcohol use. This makes sense if you think that kids who drink more are also skipping more school. The patterns seem similar between females and males.
+Absences are not normally distributed. There is a long tail and the most common value is 0. It seems that there are more absences in the kids with high alcohol use. This makes sense if you think that kids who drink more are also skipping more school. The patterns seem similar between females and males.
 
 Explore how going out is related to alcohol use. Our hypothesis is that kids who are going out more are exposed to alcohol more and thus will also drink more.
 
@@ -138,7 +144,7 @@ cbind(OR, CI)
 
 ##Cross validation
 
-After obtaining the model, we will use cross validation with a training set to estimate the error rate of the model.
+After obtaining the model, we will use cross validation with a training set to estimate the error rate of the model. We will use the model without age since age was not significant.
 
 ```{r}
 
@@ -161,7 +167,9 @@ select(alc, failures, absences, sex, high_use, probability, prediction) %>% tail
 # From here you can see than when prob is >0.5 the prediction is "TRUE"
 
 # Cross tabulate the target variable versus the predictions
-table(high_use = alc$high_use, prediction = alc$prediction)
+table(high_use = alc$high_use, prediction = alc$prediction) %>% prop.table %>% addmargins()
+
+
 
 # From here we can see that out of 65/318 predictions are wrong for predicted low alcohol use and 15/64 are wrong for the prediction of high alcohol use.
 
@@ -182,8 +190,10 @@ cv <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = 10)
 # Average number of wrong predictions in the cross validation
 cv$delta[1]
 
+
+
 ```
 
-There is approximately 22 % error in the prediction of high alcohol use using this model.
+There is approximately 22 % error in the prediction of high alcohol use using the model wiht going out, absences and age.
 
 
