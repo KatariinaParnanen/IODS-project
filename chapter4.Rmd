@@ -1,0 +1,206 @@
+---
+title: "Clustering and classification"
+author: "Katariina Parnanen"
+date: "November 14, 2018"
+output:
+  html_document: default
+  github_document: default
+---
+#Week 4: Clustering and classification
+This week we have learned about clustering, which is a handy tool for visualizing differences between data points. Clustering can be used for example for data exploration. We also learned about classification, which can be used to validate the results of clustering. Discriminant analysis was also touched upon.
+
+##Loading in the data and exploring it
+We will load the dataset "Boston" from MASS package. The dataset includes data on crime rates per capita for towns in Boston with explanatory variables related to land use and inhabitant demographics.
+```{r}
+# Access the MASS package
+library(MASS)
+library(dplyr)
+
+# Load the data
+data("Boston")
+
+# Explore the dataset's dimentions and details of the variables
+str(Boston)
+summary(Boston)
+
+```
+##Explore dataset with corrplot
+```{r}
+#L
+library(corrplot)
+# calculate the correlation matrix and round it
+cor_matrix<-cor(Boston)%>%round(digits=2) 
+
+# print the correlation matrix
+cor_matrix
+
+# visualize the correlation matrix
+corrplot(cor_matrix, method="circle", type="upper", cl.pos="b", tl.pos="d", tl.cex=0.6)
+```
+
+There seems to be highest correlations with rad = index of accessibility to radial highways, tax=full-value property-tax rate per \$10,000, lsat=lower status of the population (percent) and indus=proportion of non-retail business acres per town variables and lowest with medv=median value of owner-occupied homes in \$1000s, black=1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town and dis=weighted mean of distances to five Boston employment centres. Some of the variables have only very few high or low values which might cause good correlations, but the correlations might not be significant.
+
+##Scaling the variables
+
+Next we will scale the variables using the scale function.
+```{r}
+
+# Center and standardize variables
+boston_scaled <- scale(Boston)
+
+# Summaries of the scaled variables
+summary(Boston)
+
+# Class of the boston_scaled object is matrix
+class(boston_scaled)
+
+# Change the matrix to a data frame
+boston_scaled<-as.data.frame(boston_scaled)
+
+# Summary of the scaled crime rate
+summary(boston_scaled$crim)
+
+# Create a quantile vector of crim and print it
+bins <- quantile(boston_scaled$crim)
+bins
+
+# Create a categorical variable 'crime' using the quantiles as break points
+crime <- cut(boston_scaled$crim, breaks = bins, include.lowest = TRUE, label=c("low", "med_low", "med_high", "high"))
+
+# Look at the table of the new factor crime
+table(crime)
+
+# Remove original crim from the dataset
+boston_scaled <- dplyr::select(boston_scaled, -crim)
+
+# Add the new categorical value to scaled data
+boston_scaled <- data.frame(boston_scaled, crime)
+
+```
+The values are changed to distances from mean values (centering) and scaling by dividing the centered columns by their standard deviations.
+
+##Create training and test sets 
+Next we will create training and test sets from the data. We will use 80% of the data for training and then use the rest for testing our model.
+```{r}
+# Number of rows in the Boston dataset 
+n <- nrow(boston_scaled)
+
+# Choose  80% of the rows randomly
+ind <- sample(n,  size = n * 0.8)
+
+# Create train set
+train <- boston_scaled[ind,]
+
+
+```
+
+
+##Linear discriminant analysis
+
+Next we will fit a linear disriminant analysis for the data using the lda() command with all the explanatory variables.
+
+```{r}
+# Linear discriminant analysis
+lda.fit <- lda(crime ~ ., data = train)
+
+# print the lda.fit object
+lda.fit
+```
+From were we see that LDA1 explains >90% of the variance, which means that the model explains a great deal of the variation in the data. In the summary we can also see the means of the explanatory variables for different crime classes. For example rad and tax have quite big differences in their means between the low and high crime rates.
+
+##Drawing the LDA biplot
+
+Next we will draw a plot and see how the different towns group in clustering. We will color and annotate the dots with crime rates and draw arrows for directions and weights of the different explanatory variables.
+```{r}
+# The function for lda biplot arrows
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+
+# Target classes as numeric
+classes <- as.numeric(train$crime)
+
+# Plot the lda results
+plot(lda.fit, dimen = 2,col = classes, pch=classes)
+lda.arrows(lda.fit, myscale = 2)
+```
+
+From the plot it seems that rad (accessibility to radial highways) has the biggest impact on grouping. There are two clusters in the plot with one of them having almost al the highest crime rate towns and some medium high rates but none of the medium low or low crime rate towns. Seems like the model might only need rad to predict the crime rates.
+
+##Test set
+Next we will validate the results using the test set we made earlier. We will predict crime rate classes with test data using the lda.fit model we created with the training set.
+
+```{r}
+# Create test set 
+test <- boston_scaled[-ind,]
+
+# Save the correct classes from test data
+correct_classes <- test$crime
+
+# Remove the crime variable from test data
+test <- dplyr::select(test, -crime)
+
+## Predict classes with test data using the lda.fit model we created with the training set.
+lda.pred <- predict(lda.fit, newdata = test)
+
+# Cross tabulate the results
+table(correct = correct_classes, predicted = lda.pred$class)
+
+```
+
+From the cross tablulation, we can see that 20/20 high crime rates were predicted correctly to be high. However, two med_high cases were incorrectly classified as high. This is pretty good!  For the low class, all of the correct lows were predicted to be lows, but 12 were predicted as med_low and one as meg_high. 
+
+The model strugles with correct classification of the med_low and med_high classes. Only six of the med_high classes was correctly classified and 20/26 were predicted to be some other class. Most were predicted to be med_low, but two were high and one low. 
+
+The model does a bit better with the med_low class. 17/28 are correctly classified as med_low, and five as low and 6 as med_high.
+
+##Predicting the best number of clusters in a dataset
+
+Next we will reload the Boston dataset, scale it and use k-means algorithm to predict the optimal number of clusters in the dataset.
+
+```{r}
+# Obtain dataset
+data('Boston')
+
+# Change the matrix to a data frame
+boston_scaled2<-as.data.frame(Boston)
+
+# K-means clustering
+km <-kmeans(boston_scaled2, centers = 3)
+
+# Plot the Boston dataset with clusters, use first seven variables
+pairs(boston_scaled2[1:14], col = km$cluster)
+
+```
+
+The variables rad and tax seem to cluster the data pretty nicely into two clusters in the crime vs rad and crime vs tax plots. Three clusters might not be needed, but two might suffice. Let's check this next.
+
+##Determining the optimal number of clusters
+
+We will determine the number of clusters is to look by how the total of within cluster sum of squares (WCSS) behaves when the number of cluster changes. The best number of clusters is when the total WCSS drops dramatically, which can be observed in the plot.
+
+```{r}
+# MASS, ggplot2 and Boston dataset are available
+set.seed(123)
+
+# Determine the maximun number of clusters
+k_max <- 10
+
+# Calculate the total within sum of squares
+twcss <- sapply(1:k_max, function(k){kmeans(boston_scaled2, k)$tot.withinss})
+
+# Visualize the results with qplot
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+
+# k-means clustering
+km <-kmeans(boston_scaled2, centers = 2)
+
+# Plot the Boston dataset with clusters
+pairs(boston_scaled2, col = km$cluster)
+```
+Like we observed in the previous pairs plot, based on the qplot and WCSS it seems that the optimal number of clusters is 2. Rad and tax produce the best separation betweem the classes.
