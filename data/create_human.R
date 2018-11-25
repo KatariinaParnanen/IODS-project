@@ -55,3 +55,8 @@ human
 dim(human)
 
 #There are 19 variables and 195 observations, like there should be.
+
+write.table(human, file="data/human.txt", sep="\t")
+
+#Check that everything looks ok
+read.table("data/human.txt", sep="\t")
