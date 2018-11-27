@@ -60,3 +60,29 @@ write.table(human, file="data/human.txt", sep="\t")
 
 #Check that everything looks ok
 read.table("data/human.txt", sep="\t")
+
+##Loading in the data and needed packages and data wrangling
+#We will load the dataset human that we started working on last week. Then we will do additional modifications to it. The data contains information about education and labout rates in males and females, life expectancies, education expectancies, maternal mortalities, adolescent birth rates, education means, gross national index and gender inequality index and human development indeces of different countries.
+
+#We will change the GNI to numeric, since it includes dots as separators for thousands.
+
+#Load needed libraries
+
+library(dplyr)
+library(stringr)
+library(ggplot2)
+
+# Read in table
+human<-read.table("data/human.txt", sep ="\t")
+
+# Explore the structure and dimensions of the data
+str(human)
+
+dim(human)
+
+# Mutate the GNI to numeric
+human_<-mutate(human, GNI=str_replace(human$GNI, pattern=",", replace ="") %>% as.numeric())
+
+#The data has 195 observations and 19 variables for the different countries.
+
+

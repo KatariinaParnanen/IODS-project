@@ -1,0 +1,13 @@
+---
+title: "Dimensionality reduction techniques"
+author: "Katariina Parnanen"
+date: "November 27, 2018"
+output:
+  html_document: default
+  github_document: default
+---
+
+#Week 5: Dimensionality reduction techniques
+This week we have learned about dimensionality reduction tehcniques, which is a handy tool for visualizing differences between data points in very few dimensions when the actual data is complex. These methods in clude PCA and CA. Usually results are visualised in two dimensions for the sake of understandability.
+
+
