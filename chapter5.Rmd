@@ -139,3 +139,5 @@ Countries on the opposite scale of the PC1 include many European countries, USA,
 From the scaled figure you can see quite nicely that for example Nordic countries group together. They have quite high life expectancy, GNI, education expectancy, education rate and also labour rate and percentage of females in the parliament. Then there are also countries where the GNI, etc. variables are quite high but the the labour rate and percentage of females in the parliament are low like Qatar, Kuwait, Saudi Arabia, which are oil producing arabic countries, which makes the countries separate on the PC2 axis.
 
 Many African countries are have high labour rates and percentages of females in the parliament, but don't have that high education, life expectancy and GNI. There is division between African countries based on the second component into countries with low and high high labour rates and percentages of females in the parliament. 
+
+
