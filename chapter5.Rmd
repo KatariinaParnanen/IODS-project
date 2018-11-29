@@ -10,4 +10,132 @@ output:
 #Week 5: Dimensionality reduction techniques
 This week we have learned about dimensionality reduction tehcniques, which is a handy tool for visualizing differences between data points in very few dimensions when the actual data is complex. These methods in clude PCA and CA. Usually results are visualised in two dimensions for the sake of understandability.
 
+##Reading in data and graphical representation
 
+First we will load in the human dataset with different variables for related to economy, education and health for countries.
+
+```{r}
+# Read in table
+human<-read.table("data/human.txt", header=TRUE, row.names = 1, sep = "\t")
+str(human)
+
+# Access GGally
+library(GGally)
+
+# Visualize the variables
+ggpairs(human)
+
+# Create summaries of the variables
+
+summary(human)
+
+```
+Many of the variables have long tails so they might not be normally distributed. Education expextancy seems to be roughly normally distributed.
+
+Mean life expectancy is 71.7 years and education expectancy 13.2 years.
+
+Maternal mortality and adolescent birth rate are strongly correlated with each other and so are life expentancy and education expectancy.
+
+
+##Principal component analysis
+
+Next we will plot the variables in a two dimensional space using principal component analysis which compresses the variation in dimensions. The dimensions are ranked from one upwards, and the first dimension or principal componen captures the largest amount of variation in the date and the second the secord largest amount of variation.
+
+###Non-standardized data
+
+```{r}
+
+# Perform principal component analysis on non-standardized data
+pca_human <- prcomp(human)
+
+# Create and print out a summary of pca_human
+s <- summary(pca_human)
+s
+
+# Rounded percetanges of variance captured by each PC
+pca_pr <- round(1*s$importance[2,]*100, digits = 1) 
+
+# Print out the percentages of variance
+pca_pr
+
+# Create object pc_lab to be used as axis labels
+pc_lab <- paste0(names(pca_pr), " (", pca_pr, "%)") 
+
+# Draw a biplot
+biplot(pca_human, cex = c(0.8, 0.1), col = c("grey40", "deeppink2"), xlab = pc_lab[1], ylab = pc_lab[2])
+
+
+
+# Perform principal component analysis on non-standardized data
+pca_human <- prcomp(human)
+
+# Create and print out a summary of pca_human
+s <- summary(pca_human)
+s
+
+# Rounded percetanges of variance captured by each PC
+pca_pr <- round(1*s$importance[2,]*100, digits = 1) 
+
+# Print out the percentages of variance
+pca_pr
+
+# Create object pc_lab to be used as axis labels
+pc_lab <- paste0(names(pca_pr), " (", pca_pr, "%)") 
+
+# Draw a biplot
+biplot(pca_human, cex = c(0.8, 0.1), col = c("grey40", "deeppink2"), xlab = pc_lab[1], ylab = pc_lab[2])
+
+
+```
+
+
+###Standardized data
+
+Next we will repreat the analysis for standardized data.
+
+```{r}
+# Standardize the variables
+human_std <- scale(human)
+
+# Print out summaries of the standardized variables
+summary(human_std)
+
+# Perform principal component analysis
+pca_human <- prcomp(human_std)
+
+
+# Create and print out a summary of pca_human
+s <- summary(pca_human)
+s
+
+# Rounded percetanges of variance captured by each PC
+pca_pr <- round(1*s$importance[2,]*100, digits = 1) 
+
+# print out the percentages of variance
+pca_pr
+
+# Create object pc_lab to be used as axis labels
+pc_lab <- paste0(names(pca_pr), " (", pca_pr, "%)") 
+
+# Draw a biplot
+biplot(pca_human, cex = c(0.8, 0.8), col = c("grey40", "deeppink2"), xlab = pc_lab[1], ylab = pc_lab[2])
+
+```
+Seems like the variable GNI (gross national income) is explaining all the variance (100%) and PC2 explains none of the variance (0%) in the not scaled data. The countries with the highest GNI are on the left and ones with the lowest GNI are on the right. 
+
+In the scaled data. PC1 explains 53.6% of the variance. Variables which explain changes in the 
+direction of PC1 are education expextancy, gross national income, education rate and life expectancy, which are all positively correlated with each other, as well as maternal mortality rate and adolescent birth rate which are positively correlated with each other but negatively correlated with the before mentioned variables.
+
+PC2 explains 16.2% of the variance and labour rate and percentage of females in the parliament explain variance in this principal component.
+
+Scaling made a big difference in the results since, GNI was driving most of the differences in the data because there where so huge differences in the GNIs of different countries. When we used scaling we could see the effect of other variables as well.
+
+###Personal interpretations of the first two principal component dimensions
+
+PC1 separarates countries based on GNI, education, life expectancy and maternal mortality and teenage birth rates. Most of the extreme values with low GNI, life expextancy etc, are African countries.
+
+Countries on the opposite scale of the PC1 include many European countries, USA, Japan, South Korea and arab states.
+
+From the scaled figure you can see quite nicely that for example Nordic countries group together. They have quite high life expectancy, GNI, education expectancy, education rate and also labour rate and percentage of females in the parliament. Then there are also countries where the GNI, etc. variables are quite high but the the labour rate and percentage of females in the parliament are low like Qatar, Kuwait, Saudi Arabia, which are oil producing arabic countries, which makes the countries separate on the PC2 axis.
+
+Many African countries are have high labour rates and percentages of females in the parliament, but don't have that high education, life expectancy and GNI. There is division between African countries based on the second component into countries with low and high high labour rates and percentages of females in the parliament. 

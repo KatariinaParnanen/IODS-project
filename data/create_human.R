@@ -120,4 +120,5 @@ dim(human_)
 # Looks good!
 
 # Save table
-write.table("~/Documents/IODS_course/IODS-project/data/human.txt", sep="\t")
+write.table(human_, "~/Documents/IODS_course/IODS-project/data/human.txt", sep="\t")
+
