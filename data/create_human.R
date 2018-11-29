@@ -67,7 +67,6 @@ read.table("data/human.txt", sep="\t")
 #We will change the GNI to numeric, since it includes dots as separators for thousands.
 
 #Load needed libraries
-
 library(dplyr)
 library(stringr)
 library(ggplot2)
@@ -83,6 +82,42 @@ dim(human)
 # Mutate the GNI to numeric
 human_<-mutate(human, GNI=str_replace(human$GNI, pattern=",", replace ="") %>% as.numeric())
 
-#The data has 195 observations and 19 variables for the different countries.
+# The data has 195 observations and 19 variables for the different countries.
 
+# Make a vector for columns to keep
+keep <- c("country", "ed_rat", "lab_rat", "l_exp", "e_exp", "GNI", "Mat_mort", "Ad_br", "Perc_parl")
 
+# Select the 'keep' columns
+human_ <- dplyr::select(human_, one_of(keep))
+
+# Change the names to ones used in the example
+colnames(human_)<-c("Country", "Edu2.FM", "Labo.FM", "Life.Exp", "Edu.Exp", "GNI", "Mat.Mor", "Ado.Birth", "Parli.F")
+
+# Remove all rows containing missing values
+human_ <- filter(human_, complete.cases(human_))
+
+# Save the regions
+regions<-c("East Asia and the Pacific", 
+           "Latin America and the Caribbean", "Sub-Saharan Africa", 
+           "World", "Europe and Central Asia",
+           "South Asia", "Arab States")
+
+# Remove the regions
+human_<-human_[!human_$Country%in%regions,]
+
+# Add country as row name
+rownames(human_)<-human_$Country
+
+# Check the file
+head(human_)
+dim(human_)
+
+# Remove the first column for country
+human_<-human_[,2:9]
+
+# Check the number of columns
+dim(human_)
+# Looks good!
+
+# Save table
+write.table("~/Documents/IODS_course/IODS-project/data/human.txt", sep="\t")
