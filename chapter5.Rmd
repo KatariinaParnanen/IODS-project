@@ -120,6 +120,7 @@ pc_lab <- paste0(names(pca_pr), " (", pca_pr, "%)")
 # Draw a biplot
 biplot(pca_human, cex = c(0.8, 0.8), col = c("grey40", "deeppink2"), xlab = pc_lab[1], ylab = pc_lab[2])
 
+
 ```
 Seems like the variable GNI (gross national income) is explaining all the variance (100%) and PC2 explains none of the variance (0%) in the not scaled data. The countries with the highest GNI are on the left and ones with the lowest GNI are on the right. 
 
@@ -141,3 +142,49 @@ From the scaled figure you can see quite nicely that for example Nordic countrie
 Many African countries are have high labour rates and percentages of females in the parliament, but don't have that high education, life expectancy and GNI. There is division between African countries based on the second component into countries with low and high high labour rates and percentages of females in the parliament. 
 
 
+##Multiple correspondence analysis
+
+###Loading in data and data exploration
+First we will load the tea dataset and explore how the data looks.
+```{r}
+# Load library and tea dataset
+
+library(FactoMineR)
+data(tea)
+
+# Explore tea dataset
+str(tea)
+dim(tea)
+summary(tea)
+```
+
+There are 300 observations and 36 variables. Most variables are factors except age which is an integer.
+###MCA analysis
+Then we will do the multiple correspondence analysis with a subset of the variables
+```{r}
+# Access dplyr
+
+library(dplyr)
+
+# column names to keep in the dataset
+keep_columns <- c("Tea", "How", "how", "sugar", "where", "lunch")
+
+# select the 'keep_columns' to create a new dataset
+tea_time <- dplyr::select(tea, one_of(keep_columns))
+
+# look at the summaries and structure of the data
+str(tea_time)
+
+
+# multiple correspondence analysis
+mca <- MCA(tea_time, graph = FALSE)
+
+# summary of the model
+summary(mca)
+
+# visualize MCA
+plot(mca, invisible=c("ind"), habillage="quali")
+
+```
+
+From the plot you can see that people who drink unpackaged tea usually shop in teashops and people who buy it fro chain stores prefer teabags and people who drink both also shop in both types of shops.
