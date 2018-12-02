@@ -32,7 +32,7 @@ summary(human)
 ```
 Many of the variables have long tails so they might not be normally distributed. Education expextancy seems to be roughly normally distributed.
 
-Mean life expectancy is 71.7 years and education expectancy 13.2 years.
+Mean life expectancy is 71.7 years and education expectancy 13.2 years. There are big differences in the GNI values of different countries. Minimum is 581, median is 12040 and maximum is 123124.
 
 Maternal mortality and adolescent birth rate are strongly correlated with each other and so are life expentancy and education expectancy.
 
@@ -96,6 +96,7 @@ Next we will repreat the analysis for standardized data.
 ```{r}
 # Standardize the variables
 human_std <- scale(human)
+
 
 # Print out summaries of the standardized variables
 summary(human_std)
