@@ -45,4 +45,5 @@ str(RATSL)
 
 #In the long format each obsevation is on their own row, whereas in the long format the observations are in their own columns.
 #The wide format is more human readable, but the long format is easier to use in ggplot and is more machine readable.
-
+write.table(BPRSL, "~/Documents/IODS_course/IODS-project/data/BPRSL.txt",  sep="\t")
+write.table(RATSL,"~/Documents/IODS_course/IODS-project/data/RATSL.txt", sep="\t")

@@ -1,0 +1,21 @@
+---
+title: "Analysis of longitudinal data"
+author: "Katariina Parnanen"
+date: "November 27, 2018"
+output:
+  html_document: default
+  github_document: default
+---
+
+#Analysis of longitudinal data
+
+##Read in data and explore dimensions and structure
+```{r}
+BPRSL <- read.table("~/Documents/IODS_course/IODS-project/data/BPRSL.txt",  sep="\t", header=TRUE)
+str(BPRSL)
+summary(BPRSL)
+RATSL <- read.table("~/Documents/IODS_course/IODS-project/data/RATSL.txt",  sep="\t", header=TRUE)
+str(RATSL)
+summary(RATSL)
+```
+

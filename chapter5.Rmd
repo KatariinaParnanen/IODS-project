@@ -30,6 +30,7 @@ ggpairs(human)
 summary(human)
 
 ```
+
 Many of the variables have long tails so they might not be normally distributed. Education expextancy seems to be roughly normally distributed.
 
 Mean life expectancy is 71.7 years and education expectancy 13.2 years. There are big differences in the GNI values of different countries. Minimum is 581, median is 12040 and maximum is 123124.
@@ -123,6 +124,7 @@ biplot(pca_human, cex = c(0.8, 0.8), col = c("grey40", "deeppink2"), xlab = pc_l
 
 
 ```
+
 Seems like the variable GNI (gross national income) is explaining all the variance (100%) and PC2 explains none of the variance (0%) in the not scaled data. The countries with the highest GNI are on the left and ones with the lowest GNI are on the right. 
 
 In the scaled data. PC1 explains 53.6% of the variance. Variables which explain changes in the 
