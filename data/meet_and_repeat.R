@@ -22,7 +22,7 @@ glimpse(RATS)
 
 #Change the categorical variables to factors
 BPRS$subject <- factor(BPRS$subject)
-BPRS$treatment <- factor(BPRS$subject)
+BPRS$treatment <- factor(BPRS$treatment)
 RATS$ID <- factor(RATS$ID)
 RATS$Group <- factor(RATS$Group)
 
@@ -47,3 +47,4 @@ str(RATSL)
 #The wide format is more human readable, but the long format is easier to use in ggplot and is more machine readable.
 write.table(BPRSL, "~/Documents/IODS_course/IODS-project/data/BPRSL.txt",  sep="\t")
 write.table(RATSL,"~/Documents/IODS_course/IODS-project/data/RATSL.txt", sep="\t")
+
