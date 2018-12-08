@@ -1,5 +1,5 @@
 ---
-title: "Analysis of longitudinal data"
+title: "Week 6: Analysis of longitudinal data"
 author: "Katariina Parnanen"
 date: "November 27, 2018"
 output:
@@ -7,7 +7,7 @@ output:
   github_document: default
 ---
 
-#Analysis of longitudinal data
+#Week 6:Analysis of longitudinal data
 
 ##Read in data and explore dimensions and structure and mofidy variables
 Factor subject ID ands groups and treatment
